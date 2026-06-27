@@ -7,6 +7,7 @@ class HaDataEditorPanel extends HTMLElement {
         this._editingArea = null;
         this._assignTab = 'entity';
         this._manageMode = 'assign'; // 'assign' | 'manage'
+        this._mainSearch = '';
 
         // 点击组件外部时关闭所有开放的楼层菜单
         document.addEventListener('click', (e) => {
@@ -129,15 +130,28 @@ class HaDataEditorPanel extends HTMLElement {
         let sections = '';
         const t = this._t.bind(this);
 
+        const searchVal = (this._mainSearch || '').toLowerCase();
+        const matchArea = (a) => !searchVal || (a.name || '').toLowerCase().includes(searchVal) || (a.area_id || '').toLowerCase().includes(searchVal);
+
         // 预计算每个区域的实体数量
         const entityCounts = {};
         Object.values(hass.entities || {}).forEach((entry) => {
             if (entry.area_id) entityCounts[entry.area_id] = (entityCounts[entry.area_id] || 0) + 1;
         });
-        if (unassigned.length) sections += this._floorSection(t('unassigned_floors'), unassigned, null, entityCounts);
-        floors.forEach((floor) => {
-            sections += this._floorSection(floor.name, areasByFloor[floor.floor_id] || [], floor, entityCounts);
-        });
+        const filteredUnassigned = unassigned.filter(matchArea);
+        if (searchVal) {
+            if (filteredUnassigned.length) sections += this._floorSection(t('unassigned_floors'), filteredUnassigned, null, entityCounts);
+            floors.forEach((floor) => {
+                const fa = (areasByFloor[floor.floor_id] || []).filter(matchArea);
+                if (fa.length) sections += this._floorSection(floor.name, fa, floor, entityCounts);
+            });
+            if (!sections) sections = '<div class="hade-empty">' + t('no_match') + '</div>';
+        } else {
+            if (unassigned.length) sections += this._floorSection(t('unassigned_floors'), unassigned, null, entityCounts);
+            floors.forEach((floor) => {
+                sections += this._floorSection(floor.name, areasByFloor[floor.floor_id] || [], floor, entityCounts);
+            });
+        }
 
         this.innerHTML = `
 <style>
@@ -216,6 +230,8 @@ class HaDataEditorPanel extends HTMLElement {
     .hade-assign-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: var(--divider-color); color: var(--secondary-text-color); white-space: nowrap; flex-shrink: 0; }
     .hade-assign-footer { margin-top: 12px; padding: 10px 14px; background: var(--divider-color); border-radius: 8px; font-size: 12px; color: var(--secondary-text-color); }
     .hade-assign-footer-item { display: inline-block; margin: 2px 6px 2px 0; padding: 2px 10px; background: var(--card-background-color, #fff); border-radius: 12px; font-size: 11px; }
+    .hade-search-bar { padding: 8px 16px; background: var(--primary-background-color); border-bottom: 1px solid var(--divider-color); position: sticky; top: var(--toolbar-height, 56px); z-index: 99; box-sizing: border-box; }
+    .hade-search-bar .hade-input { border-radius: 24px; }
 
 </style>
 
@@ -225,6 +241,9 @@ class HaDataEditorPanel extends HTMLElement {
         <ha-icon-button icon="mdi:floor-plan" label="${t('create_floor')}"></ha-icon-button>
         <ha-icon-button icon="mdi:plus" label="${t('create_area')}"></ha-icon-button>
     </div>
+</div>
+<div class="hade-search-bar">
+    <input type="text" class="hade-input" id="hade-main-search" placeholder="${t('search')}" value="${this._mainSearch || ''}" style="width:100%;">
 </div>
 <div class="hade-container">${sections || '<div class="hade-empty">' + t('no_areas') + '</div>'}</div>
 <div class="hade-fabs">
@@ -842,6 +861,13 @@ class HaDataEditorPanel extends HTMLElement {
         this.querySelector('#hade-manage-toggle')?.addEventListener('click', () => this._toggleAll('hade-manage'));
         this.querySelector('#hade-manage-search')?.addEventListener('input', () => this._buildList());
         this.querySelector('#hade-manage-sort')?.addEventListener('change', () => this._buildList());
+
+        this.querySelector('#hade-main-search')?.addEventListener('input', (e) => {
+            this._mainSearch = e.target.value || '';
+            this.render();
+            const el = this.querySelector('#hade-main-search');
+            if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+        });
 
         overlay?.addEventListener('click', (e) => { if (e.target === overlay) closeAll(); });
 
