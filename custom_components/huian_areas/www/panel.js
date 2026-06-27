@@ -114,44 +114,8 @@ class HaDataEditorPanel extends HTMLElement {
         const hass = this._hass;
         if (!hass) return;
 
-        const areas = Object.values(hass.areas);
-        const floors = hass.floors ? Object.values(hass.floors) : [];
-
-        const areasByFloor = {};
-        const unassigned = [];
-        areas.forEach((area) => {
-            if (area.floor_id && floors.some((f) => f.floor_id === area.floor_id)) {
-                (areasByFloor[area.floor_id] ||= []).push(area);
-            } else {
-                unassigned.push(area);
-            }
-        });
-
-        let sections = '';
         const t = this._t.bind(this);
-
-        const searchVal = (this._mainSearch || '').toLowerCase();
-        const matchArea = (a) => !searchVal || (a.name || '').toLowerCase().includes(searchVal) || (a.area_id || '').toLowerCase().includes(searchVal);
-
-        // 预计算每个区域的实体数量
-        const entityCounts = {};
-        Object.values(hass.entities || {}).forEach((entry) => {
-            if (entry.area_id) entityCounts[entry.area_id] = (entityCounts[entry.area_id] || 0) + 1;
-        });
-        const filteredUnassigned = unassigned.filter(matchArea);
-        if (searchVal) {
-            if (filteredUnassigned.length) sections += this._floorSection(t('unassigned_floors'), filteredUnassigned, null, entityCounts);
-            floors.forEach((floor) => {
-                const fa = (areasByFloor[floor.floor_id] || []).filter(matchArea);
-                if (fa.length) sections += this._floorSection(floor.name, fa, floor, entityCounts);
-            });
-            if (!sections) sections = '<div class="hade-empty">' + t('no_match') + '</div>';
-        } else {
-            if (unassigned.length) sections += this._floorSection(t('unassigned_floors'), unassigned, null, entityCounts);
-            floors.forEach((floor) => {
-                sections += this._floorSection(floor.name, areasByFloor[floor.floor_id] || [], floor, entityCounts);
-            });
-        }
+        const sections = this._buildSections();
 
         this.innerHTML = `
 <style>
@@ -322,6 +286,45 @@ class HaDataEditorPanel extends HTMLElement {
 
         this._populateFloorSelect();
         this._bindEvents();
+    }
+
+    _buildSections() {
+        const hass = this._hass;
+        if (!hass) return '';
+        const areas = Object.values(hass.areas);
+        const floors = hass.floors ? Object.values(hass.floors) : [];
+        const areasByFloor = {};
+        const unassigned = [];
+        areas.forEach((area) => {
+            if (area.floor_id && floors.some((f) => f.floor_id === area.floor_id)) {
+                (areasByFloor[area.floor_id] ||= []).push(area);
+            } else {
+                unassigned.push(area);
+            }
+        });
+        let sections = '';
+        const t = this._t.bind(this);
+        const searchVal = (this._mainSearch || '').toLowerCase();
+        const matchArea = (a) => !searchVal || (a.name || '').toLowerCase().includes(searchVal) || (a.area_id || '').toLowerCase().includes(searchVal);
+        const entityCounts = {};
+        Object.values(hass.entities || {}).forEach((entry) => {
+            if (entry.area_id) entityCounts[entry.area_id] = (entityCounts[entry.area_id] || 0) + 1;
+        });
+        const filteredUnassigned = unassigned.filter(matchArea);
+        if (searchVal) {
+            if (filteredUnassigned.length) sections += this._floorSection(t('unassigned_floors'), filteredUnassigned, null, entityCounts);
+            floors.forEach((floor) => {
+                const fa = (areasByFloor[floor.floor_id] || []).filter(matchArea);
+                if (fa.length) sections += this._floorSection(floor.name, fa, floor, entityCounts);
+            });
+            if (!sections) sections = '<div class="hade-empty">' + t('no_match') + '</div>';
+        } else {
+            if (unassigned.length) sections += this._floorSection(t('unassigned_floors'), unassigned, null, entityCounts);
+            floors.forEach((floor) => {
+                sections += this._floorSection(floor.name, areasByFloor[floor.floor_id] || [], floor, entityCounts);
+            });
+        }
+        return sections;
     }
 
     _floorSection(title, areas, floorObj, entityCounts) {
@@ -864,48 +867,42 @@ class HaDataEditorPanel extends HTMLElement {
 
         this.querySelector('#hade-main-search')?.addEventListener('input', (e) => {
             this._mainSearch = e.target.value || '';
-            this.render();
-            const el = this.querySelector('#hade-main-search');
-            if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+            const container = this.querySelector('.hade-container');
+            if (container) container.innerHTML = this._buildSections();
         });
 
         overlay?.addEventListener('click', (e) => { if (e.target === overlay) closeAll(); });
 
-        // ===== 卡片点击
-        this.querySelectorAll('.hade-card').forEach((card) => {
-            card.addEventListener('click', (e) => {
-                if (e.target.closest('.hade-card-btn') || e.target.closest('.hade-pencil-btn')) return;
-                const areaId = card.getAttribute('data-area-id');
-                if (areaId) {
-                    history.pushState(null, '', '/config/areas/area/' + areaId);
-                    window.dispatchEvent(new PopStateEvent('popstate'));
+        // ===== 卡片点击（容器事件委托，搜索刷新内容后无需重新绑定）
+        const cardContainer = this.querySelector('.hade-container');
+        if (cardContainer) {
+            cardContainer.addEventListener('click', (e) => {
+                const pencil = e.target.closest('.hade-pencil-btn');
+                const btn = e.target.closest('.hade-card-btn');
+                const card = e.target.closest('.hade-card');
+                if (pencil) {
+                    e.stopPropagation();
+                    const areaId = pencil.getAttribute('data-area-id');
+                    if (areaId) openEdit(areaId);
+                    return;
+                }
+                if (btn) {
+                    e.stopPropagation();
+                    const action = btn.getAttribute('data-action');
+                    const areaId = btn.getAttribute('data-area-id');
+                    if (action === 'assign' && areaId) openAssign(areaId);
+                    else if (action === 'manage' && areaId) openManage(areaId);
+                    return;
+                }
+                if (card) {
+                    const areaId = card.getAttribute('data-area-id');
+                    if (areaId) {
+                        history.pushState(null, '', '/config/areas/area/' + areaId);
+                        window.dispatchEvent(new PopStateEvent('popstate'));
+                    }
                 }
             });
-        });
-
-        this.querySelectorAll('.hade-pencil-btn').forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const areaId = btn.getAttribute('data-area-id');
-                if (areaId) openEdit(areaId);
-            });
-        });
-
-        this.querySelectorAll('.hade-card-btn[data-action="assign"]').forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const areaId = btn.getAttribute('data-area-id');
-                if (areaId) openAssign(areaId);
-            });
-        });
-
-        this.querySelectorAll('.hade-card-btn[data-action="manage"]').forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const areaId = btn.getAttribute('data-area-id');
-                if (areaId) openManage(areaId);
-            });
-        });
+        }
     }
 
     _toggleAll(pre) {
