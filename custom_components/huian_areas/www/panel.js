@@ -819,33 +819,6 @@ class HaDataEditorPanel extends HTMLElement {
         }
         this.querySelector('#hade-edit-close')?.addEventListener('click', closeAll);
 
-        // 楼层菜单（每次 render 后直接绑定，不需要 constructor 的 document 委托）
-        this.querySelectorAll('.hade-floor-menu-trigger').forEach((trigger) => {
-            trigger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const dropdown = trigger.parentElement.querySelector('.hade-floor-menu-dropdown');
-                if (dropdown) {
-                    const wasOpen = dropdown.classList.contains('open');
-                    this.querySelectorAll('.hade-floor-menu-dropdown.open').forEach((dd) => dd.classList.remove('open'));
-                    if (!wasOpen) dropdown.classList.add('open');
-                }
-            });
-        });
-        this.querySelectorAll('[data-action="floor-edit"]').forEach((item) => {
-            item.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const floorId = item.getAttribute('data-floor-id');
-                if (floorId) this._floorAction('edit', floorId);
-            });
-        });
-        this.querySelectorAll('[data-action="floor-delete"]').forEach((item) => {
-            item.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const floorId = item.getAttribute('data-floor-id');
-                if (floorId) this._floorAction('delete', floorId);
-            });
-        });
-
         // 分配弹窗
         this.querySelector('#hade-assign-close')?.addEventListener('click', closeAll);
         this.querySelector('#hade-assign-save')?.addEventListener('click', doSaveAssign);
@@ -888,6 +861,25 @@ class HaDataEditorPanel extends HTMLElement {
         const cardContainer = this.querySelector('.hade-container');
         if (cardContainer) {
             cardContainer.addEventListener('click', (e) => {
+                const floorTrigger = e.target.closest('.hade-floor-menu-trigger');
+                if (floorTrigger) {
+                    e.stopPropagation();
+                    const dropdown = floorTrigger.parentElement.querySelector('.hade-floor-menu-dropdown');
+                    if (dropdown) {
+                        const wasOpen = dropdown.classList.contains('open');
+                        this.querySelectorAll('.hade-floor-menu-dropdown.open').forEach((dd) => dd.classList.remove('open'));
+                        if (!wasOpen) dropdown.classList.add('open');
+                    }
+                    return;
+                }
+                const floorItem = e.target.closest('[data-action="floor-edit"], [data-action="floor-delete"]');
+                if (floorItem) {
+                    e.stopPropagation();
+                    const floorId = floorItem.getAttribute('data-floor-id');
+                    const action = floorItem.getAttribute('data-action');
+                    if (floorId && action) this._floorAction(action === 'floor-edit' ? 'edit' : 'delete', floorId);
+                    return;
+                }
                 const pencil = e.target.closest('.hade-pencil-btn');
                 const btn = e.target.closest('.hade-card-btn');
                 const card = e.target.closest('.hade-card');
