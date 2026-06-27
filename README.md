@@ -2,6 +2,8 @@
 
 Custom Home Assistant integration to assign devices and entities to areas in bulk.
 
+> Modified from the [HA Data Editor](https://github.com/dmoreira/ha-data-editor) integration.
+
 ## Features
 
 - Custom sidebar panel ("Areas") for managing area assignments
