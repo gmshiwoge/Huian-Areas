@@ -97,7 +97,7 @@ class HaDataEditorPanel extends HTMLElement {
 
     set hass(hass) {
         this._hass = hass;
-        const key = JSON.stringify(hass.areas) + JSON.stringify(hass.floors || {});
+        const key = JSON.stringify(hass.areas) + JSON.stringify(hass.floors || {}) + JSON.stringify(hass.entities || {}) + JSON.stringify(hass.devices || {});
         if (key !== this._lastRenderKey && this.isConnected) {
             this._lastRenderKey = key;
             this.render();
@@ -115,9 +115,10 @@ class HaDataEditorPanel extends HTMLElement {
         if (!hass) return;
 
         const t = this._t.bind(this);
-        const sections = this._buildSections();
 
-        this.innerHTML = `
+        if (!this._skeletonBuilt) {
+            this._skeletonBuilt = true;
+            this.innerHTML = `
 <style>
     ha-panel-huian-areas { display: block; min-height: 100vh; }
     .hade-header { font-size: var(--ha-font-size-xl); height: var(--toolbar-height, 56px); padding: 0 16px; padding-top: var(--safe-area-inset-top, 0px); padding-right: var(--safe-area-inset-right, 0px); background-color: var(--primary-background-color); font-weight: var(--ha-font-weight-normal); border-bottom: 1px solid var(--divider-color); box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; color: var(--primary-text-color); position: sticky; top: 0; z-index: 100; }
@@ -151,7 +152,7 @@ class HaDataEditorPanel extends HTMLElement {
     .hade-pencil-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: var(--secondary-text-color); margin-right: 4px; transition: background 0.15s, color 0.15s; }
     .hade-pencil-btn:hover { background: var(--divider-color); color: var(--primary-text-color); }
     .hade-fabs { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: row; gap: 12px; z-index: 10; }
-    .hade-fab-btn { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 20px; border: none; border-radius: 16px; background: var(--primary-color); color: var(--text-primary-color, #fff); font-size: 15px; font-weight: 500; font-family: inherit; cursor: pointer; box-shadow: 0 3px 5px -1px rgba(0,0,0,0.2), 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12); transition: box-shadow 0.2s; }
+    .hade-fab-btn { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 20px; border: none; border-radius: 9999px; background: var(--primary-color); color: var(--text-primary-color, #fff); font-size: 15px; font-weight: 500; font-family: inherit; cursor: pointer; box-shadow: 0 3px 5px -1px rgba(0,0,0,0.2), 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12); transition: box-shadow 0.2s; }
     .hade-fab-btn:hover { box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12); }
     .hade-fab-btn:active { box-shadow: 0 7px 8px -4px rgba(0,0,0,0.2), 0 12px 17px 2px rgba(0,0,0,0.14), 0 5px 22px 4px rgba(0,0,0,0.12); }
     .hade-fab-btn svg { width: 24px; height: 24px; fill: currentColor; flex-shrink: 0; }
@@ -290,6 +291,14 @@ class HaDataEditorPanel extends HTMLElement {
 
         this._populateFloorSelect();
         this._bindEvents();
+        }
+
+        const container = this.querySelector('.hade-container');
+        if (container) container.innerHTML = this._buildSections();
+        const searchInput = this.querySelector('#hade-main-search');
+        if (searchInput && document.activeElement !== searchInput && this._mainSearch) {
+            searchInput.value = this._mainSearch;
+        }
     }
 
     _buildSections() {
