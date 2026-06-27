@@ -1,0 +1,11 @@
+{
+  "domain": "huian_areas",
+  "name": "Huian Areas",
+  "codeowners": ["@fredck"],
+  "config_flow": true,
+  "documentation": "https://github.com/gmshiwoge/Huian-Areas/blob/main/README.md",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/gmshiwoge/Huian-Areas/issues",
+  "version": "0.1.1"
+}

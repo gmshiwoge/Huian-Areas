@@ -1,0 +1,9 @@
+{
+  "config": {
+    "step": {},
+    "abort": {
+      "already_configured": "You cannot configure more than one Area service. Service already configured."
+    }
+  },
+  "title": "Areas"
+}

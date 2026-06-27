@@ -1,0 +1,39 @@
+update_device:
+  name: Update device
+  description: Updates a device description in the device registry.
+  fields:
+    device_id:
+      name: Device
+      description: The the device to update.
+      example: "1234abcd"
+      required: true
+      selector:
+        device:
+
+    area_id:
+      name: Area
+      description: The new area to assign to the device.
+      example: "living_room"
+      required: true
+      selector:
+        area:
+
+update_entity:
+  name: Update entity
+  description: Updates an entity's area in the entity registry.
+  fields:
+    entity_id:
+      name: Entity
+      description: The entity to update.
+      example: "light.living_room"
+      required: true
+      selector:
+        entity:
+
+    area_id:
+      name: Area
+      description: The new area to assign to the entity.
+      example: "living_room"
+      required: true
+      selector:
+        area:

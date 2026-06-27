@@ -1,0 +1,11 @@
+{
+  "config": {
+    "step": {},
+    "abort": {
+      "already_configured": "您不能配置多个区域服务。服务已配置。"
+    }
+  },
+  "title": "区域"
+}
+
+
