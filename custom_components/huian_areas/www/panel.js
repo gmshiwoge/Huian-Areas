@@ -537,9 +537,12 @@ class HaDataEditorPanel extends HTMLElement {
             const platform = regEntry?.platform || domain;
             const name = state.attributes?.friendly_name || entityId;
             const areaName = entityArea ? (hass.areas[entityArea]?.name || entityArea) : t('unspecified_area');
+            const floorId = entityArea ? hass.areas[entityArea]?.floor_id : null;
+            const floorName = (floorId && hass.floors?.[floorId]) ? (hass.floors[floorId].name || floorId) : null;
+            const tag = floorName ? `${floorName} ${areaName}` : areaName;
 
             return {
-                id: entityId, name, sub: entityId, tag: areaName,
+                id: entityId, name, sub: entityId, tag,
                 checked: entityArea === area.area_id, entityArea, domain, domainOrder: domainPriority[domain] || 99, platform,
             };
         });
@@ -568,7 +571,10 @@ class HaDataEditorPanel extends HTMLElement {
             const sub = device.manufacturer || device.model || device.id;
             const deviceArea = device.area_id;
             const areaName = deviceArea ? (hass.areas[deviceArea]?.name || t('assigned')) : t('unassigned_dev');
-            return { id: device.id, name, sub, tag: areaName, checked: deviceArea === area.area_id, deviceArea };
+            const floorId = deviceArea ? hass.areas[deviceArea]?.floor_id : null;
+            const floorName = (floorId && hass.floors?.[floorId]) ? (hass.floors[floorId].name || floorId) : null;
+            const tag = floorName ? `${floorName} ${areaName}` : areaName;
+            return { id: device.id, name, sub, tag, checked: deviceArea === area.area_id, deviceArea };
         });
         if (searchVal) {
             rows = rows.filter((r) => r.name.toLowerCase().includes(searchVal) || r.id.toLowerCase().includes(searchVal) || r.sub.toLowerCase().includes(searchVal));
