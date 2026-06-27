@@ -191,6 +191,8 @@ class HaDataEditorPanel extends HTMLElement {
     .hade-edit-area-id { font-family: monospace; font-size: 13px; color: var(--secondary-text-color); padding: 8px 0; word-break: break-all; }
     .hade-select { width: 100%; height: 48px; padding: 0 36px 0 12px; border: 1px solid var(--divider-color); border-radius: 12px; font-size: 14px; font-family: inherit; background: var(--ha-card-background, var(--card-background-color, #fff)); color: var(--primary-text-color); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='20' height='20' fill='%23666'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
     .hade-select:focus { outline: none; border-color: var(--primary-color); }
+    .hade-input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--divider-color); border-radius: 12px; font-size: 14px; font-family: inherit; background: var(--ha-card-background, var(--card-background-color, #fff)); color: var(--primary-text-color); box-sizing: border-box; }
+    .hade-input:focus { outline: none; border-color: var(--primary-color); }
     .hade-edit-row { display: flex; gap: 12px; }
     .hade-edit-row > * { flex: 1; }
     .hade-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--divider-color); }
@@ -238,7 +240,7 @@ class HaDataEditorPanel extends HTMLElement {
             <h3 class="hade-dialog-title" id="hade-dialog-title"></h3>
             <span class="hade-dialog-close" id="hade-create-close"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span>
         </div>
-        <ha-textfield id="hade-dialog-input" label="${t('name')}" dialogInitialFocus style="width:100%;"></ha-textfield>
+        <input type="text" class="hade-input" id="hade-dialog-input" placeholder="${t('name')}" style="width:100%;">
         <div id="hade-create-floor-wrap" style="display:none;margin-top:12px;">
             <ha-select id="hade-create-floor-select" style="width:100%;"><ha-list-item value="">${t('unspecified')}</ha-list-item></ha-select>
         </div>
@@ -252,7 +254,7 @@ class HaDataEditorPanel extends HTMLElement {
             <span class="hade-dialog-close" id="hade-edit-close"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span>
         </div>
         <div class="hade-edit-section hade-edit-section--row"><div class="hade-edit-label">${t('area_id')}</div><div class="hade-edit-area-id" id="hade-edit-area-id"></div></div>
-        <div class="hade-edit-section"><div class="hade-edit-label">${t('name')}</div><ha-textfield id="hade-edit-name" style="width:100%;"></ha-textfield></div>
+        <div class="hade-edit-section"><div class="hade-edit-label">${t('name')}</div><input type="text" class="hade-input" id="hade-edit-name" style="width:100%;"></div>
         <div class="hade-edit-section"><div class="hade-edit-label">${t('icon')}</div><ha-icon-picker id="hade-edit-icon-picker"></ha-icon-picker></div>
         <div class="hade-edit-section"><div class="hade-edit-label">${t('floor')}</div><ha-select id="hade-edit-floor-select" style="width:100%;"><ha-list-item value="">${t('unspecified')}</ha-list-item></ha-select></div>
         <div class="hade-dialog-actions hade-dialog-actions--edit"><ha-button id="hade-edit-delete" class="warning">${t('delete')}</ha-button><ha-button id="hade-edit-save" unelevated>${t('save')}</ha-button></div>
@@ -270,7 +272,7 @@ class HaDataEditorPanel extends HTMLElement {
             <span style="font-size:12px;color:var(--secondary-text-color);" id="hade-assign-count"></span>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:12px;">
-            <ha-textfield id="hade-assign-search" placeholder="${t('search')}" style="flex:1;height:40px;"></ha-textfield>
+            <input type="text" class="hade-input" id="hade-assign-search" placeholder="${t('search')}" style="flex:1;">
             <select id="hade-assign-sort" class="hade-select" style="width:110px;height:40px;font-size:12px;"><option value="domain">${t('sort_by_type')}</option><option value="name">${t('sort_by_name')}</option><option value="area">${t('sort_by_area')}</option><option value="integration">${t('sort_by_integration')}</option></select>
         </div>
         <div class="hade-assign-list" id="hade-assign-list"></div>
@@ -289,7 +291,7 @@ class HaDataEditorPanel extends HTMLElement {
             <span style="font-size:12px;color:var(--secondary-text-color);" id="hade-manage-count"></span>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:12px;">
-            <ha-textfield id="hade-manage-search" placeholder="${t('search')}" style="flex:1;height:40px;"></ha-textfield>
+            <input type="text" class="hade-input" id="hade-manage-search" placeholder="${t('search')}" style="flex:1;">
             <select id="hade-manage-sort" class="hade-select" style="width:110px;height:40px;font-size:12px;"><option value="domain">${t('sort_by_type')}</option><option value="name">${t('sort_by_name')}</option><option value="area">${t('sort_by_area')}</option><option value="integration">${t('sort_by_integration')}</option></select>
         </div>
         <div class="hade-assign-list" id="hade-manage-list"></div>
@@ -912,11 +914,11 @@ class HaDataEditorPanel extends HTMLElement {
     _escAttr(str) { return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
     updateDeviceArea(hass, deviceId, newAreaId) {
-        hass.callService('Huian_Areas', 'update_device', { device_id: deviceId, area_id: newAreaId });
+        hass.callService('huian_areas', 'update_device', { device_id: deviceId, area_id: newAreaId });
     }
 
     updateEntityArea(hass, entityId, newAreaId) {
-        hass.callService('Huian_Areas', 'update_entity', { entity_id: entityId, area_id: newAreaId });
+        hass.callService('huian_areas', 'update_entity', { entity_id: entityId, area_id: newAreaId });
     }
 }
 
