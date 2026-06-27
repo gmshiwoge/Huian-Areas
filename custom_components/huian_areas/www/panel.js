@@ -214,7 +214,7 @@ class HaDataEditorPanel extends HTMLElement {
 <div class="hade-search-bar">
     <input type="text" class="hade-input" id="hade-main-search" placeholder="${t('search')}" value="${this._mainSearch || ''}" style="width:100%;">
 </div>
-<div class="hade-container">${sections || '<div class="hade-empty">' + t('no_areas') + '</div>'}</div>
+<div class="hade-container"></div>
 <div class="hade-fabs">
     <button class="hade-fab-btn" id="hade-create-area"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path></svg>${t('create_area')}</button>
     <button class="hade-fab-btn" id="hade-create-floor"><svg viewBox="0 0 24 24"><path d="M3 15h8V3H3v12zm2-10h4v4H5V5zm16-2v6h-6V3h6zM5 19h4v4H5v-4zm8 0h6v-6h-6v6z"></path></svg>${t('create_floor')}</button>
