@@ -151,6 +151,10 @@ class HaDataEditorPanel extends HTMLElement {
     .hade-pencil-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: var(--secondary-text-color); margin-right: 4px; transition: background 0.15s, color 0.15s; }
     .hade-pencil-btn:hover { background: var(--divider-color); color: var(--primary-text-color); }
     .hade-fabs { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: row; gap: 12px; z-index: 10; }
+    .hade-fab-btn { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 20px; border: none; border-radius: 16px; background: var(--primary-color); color: var(--text-primary-color, #fff); font-size: 15px; font-weight: 500; font-family: inherit; cursor: pointer; box-shadow: 0 3px 5px -1px rgba(0,0,0,0.2), 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12); transition: box-shadow 0.2s; }
+    .hade-fab-btn:hover { box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12); }
+    .hade-fab-btn:active { box-shadow: 0 7px 8px -4px rgba(0,0,0,0.2), 0 12px 17px 2px rgba(0,0,0,0.14), 0 5px 22px 4px rgba(0,0,0,0.12); }
+    .hade-fab-btn svg { width: 24px; height: 24px; fill: currentColor; flex-shrink: 0; }
 
     .hade-dialog-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 101; align-items: flex-start; justify-content: center; overflow: visible; padding: 40px 16px; }
     .hade-dialog-overlay.open { display: flex; }
@@ -211,8 +215,8 @@ class HaDataEditorPanel extends HTMLElement {
 </div>
 <div class="hade-container">${sections || '<div class="hade-empty">' + t('no_areas') + '</div>'}</div>
 <div class="hade-fabs">
-    <ha-fab id="hade-create-area" extended label="${t('create_area')}" style="--mdc-theme-secondary: var(--primary-color);"><ha-svg-icon slot="icon" path="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></ha-svg-icon></ha-fab>
-    <ha-fab id="hade-create-floor" extended label="${t('create_floor')}" style="--mdc-theme-secondary: var(--primary-color);"><ha-svg-icon slot="icon" path="M3 15h8V3H3v12zm2-10h4v4H5V5zm16-2v6h-6V3h6zM5 19h4v4H5v-4zm8 0h6v-6h-6v6z"></ha-svg-icon></ha-fab>
+    <button class="hade-fab-btn" id="hade-create-area"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path></svg>${t('create_area')}</button>
+    <button class="hade-fab-btn" id="hade-create-floor"><svg viewBox="0 0 24 24"><path d="M3 15h8V3H3v12zm2-10h4v4H5V5zm16-2v6h-6V3h6zM5 19h4v4H5v-4zm8 0h6v-6h-6v6z"></path></svg>${t('create_floor')}</button>
 </div>
 
 <div class="hade-dialog-overlay" id="hade-dialog-overlay">
