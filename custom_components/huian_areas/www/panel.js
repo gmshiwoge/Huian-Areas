@@ -230,7 +230,7 @@ class HaDataEditorPanel extends HTMLElement {
         </div>
         <input type="text" class="hade-input" id="hade-dialog-input" placeholder="${t('name')}" style="width:100%;">
         <div id="hade-create-floor-wrap" style="display:none;margin-top:12px;">
-            <ha-select id="hade-create-floor-select" style="width:100%;"><ha-list-item value="">${t('unspecified')}</ha-list-item></ha-select>
+            <select id="hade-create-floor-select" class="hade-select" style="width:100%;"><option value="">${t('unspecified')}</option></select>
         </div>
         <div class="hade-dialog-actions"><ha-button id="hade-dialog-confirm" unelevated>${t('create')}</ha-button></div>
     </div>
@@ -244,7 +244,7 @@ class HaDataEditorPanel extends HTMLElement {
         <div class="hade-edit-section hade-edit-section--row"><div class="hade-edit-label">${t('area_id')}</div><div class="hade-edit-area-id" id="hade-edit-area-id"></div></div>
         <div class="hade-edit-section"><div class="hade-edit-label">${t('name')}</div><input type="text" class="hade-input" id="hade-edit-name" style="width:100%;"></div>
         <div class="hade-edit-section"><div class="hade-edit-label">${t('icon')}</div><ha-icon-picker id="hade-edit-icon-picker"></ha-icon-picker></div>
-        <div class="hade-edit-section"><div class="hade-edit-label">${t('floor')}</div><ha-select id="hade-edit-floor-select" style="width:100%;"><ha-list-item value="">${t('unspecified')}</ha-list-item></ha-select></div>
+        <div class="hade-edit-section"><div class="hade-edit-label">${t('floor')}</div><select id="hade-edit-floor-select" class="hade-select" style="width:100%;"><option value="">${t('unspecified')}</option></select></div>
         <div class="hade-dialog-actions hade-dialog-actions--edit"><ha-button id="hade-edit-delete" class="warning">${t('delete')}</ha-button><ha-button id="hade-edit-save" unelevated>${t('save')}</ha-button></div>
     </div>
 
@@ -383,28 +383,22 @@ class HaDataEditorPanel extends HTMLElement {
     _populateFloorSelect() {
         const select = this.querySelector('#hade-edit-floor-select');
         if (!select || !this._hass) return;
-        // 先保存当前值，重建选项后再恢复
         const targetVal = select.value;
-        // 清空并重建默认选项
         while (select.firstChild) select.removeChild(select.firstChild);
-        const defaultOpt = document.createElement('ha-list-item');
-        defaultOpt.setAttribute('value', '');
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
         defaultOpt.textContent = this._t('unspecified');
         select.appendChild(defaultOpt);
-        // 添加楼层选项
         const floors = this._hass.floors ? Object.values(this._hass.floors) : [];
         floors.forEach((floor) => {
             const name = floor.name || floor.floor_id;
-            const opt = document.createElement('ha-list-item');
-            opt.setAttribute('value', floor.floor_id);
+            const opt = document.createElement('option');
+            opt.value = floor.floor_id;
             opt.textContent = name;
             select.appendChild(opt);
         });
-        // 延迟一帧恢复值，等 MWC 扫描完子元素
-        requestAnimationFrame(() => {
-            const floors = this._hass.floors || {};
-            select.value = (targetVal && floors[targetVal]) ? targetVal : '';
-        });
+        const floorsMap = this._hass.floors || {};
+        select.value = (targetVal && floorsMap[targetVal]) ? targetVal : '';
     }
 
     /* ========== 列表构建 ========== */
@@ -635,14 +629,14 @@ class HaDataEditorPanel extends HTMLElement {
                 const floorSelect = this.querySelector('#hade-create-floor-select');
                 if (floorSelect) {
                     while (floorSelect.firstChild) floorSelect.removeChild(floorSelect.firstChild);
-                    const defaultOpt = document.createElement('ha-list-item');
-                    defaultOpt.setAttribute('value', '');
+                    const defaultOpt = document.createElement('option');
+                    defaultOpt.value = '';
                     defaultOpt.textContent = t('unspecified');
                     floorSelect.appendChild(defaultOpt);
                     (this._hass.floors ? Object.values(this._hass.floors) : []).forEach((floor) => {
                         const name = floor.name || floor.floor_id;
-                        const opt = document.createElement('ha-list-item');
-                        opt.setAttribute('value', floor.floor_id);
+                        const opt = document.createElement('option');
+                        opt.value = floor.floor_id;
                         opt.textContent = name;
                         floorSelect.appendChild(opt);
                     });
@@ -681,11 +675,9 @@ class HaDataEditorPanel extends HTMLElement {
             const floorSelect = this.querySelector('#hade-edit-floor-select');
             this._populateFloorSelect();
             if (floorSelect) {
-                requestAnimationFrame(() => {
-                    const floorId = area.floor_id || '';
-                    const floors = this._hass.floors || {};
-                    floorSelect.value = (floorId && floors[floorId]) ? floorId : '';
-                });
+                const floorId = area.floor_id || '';
+                const floors = this._hass.floors || {};
+                floorSelect.value = (floorId && floors[floorId]) ? floorId : '';
             }
             hideDialogs(); editDialog.style.display = '';
             overlay.classList.add('open');
