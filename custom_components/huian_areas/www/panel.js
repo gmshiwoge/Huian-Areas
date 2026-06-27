@@ -178,7 +178,7 @@ class HaDataEditorPanel extends HTMLElement {
     .hade-input:focus { outline: none; border-color: var(--primary-color); }
     .hade-edit-row { display: flex; gap: 12px; }
     .hade-edit-row > * { flex: 1; }
-    .hade-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--divider-color); }
+    .hade-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; padding-top: 16px; }
     .hade-dialog-actions--edit { justify-content: space-between; }
 
     .hade-tabs { display: flex; background: var(--divider-color, #e0e0e0); border-radius: 12px; padding: 3px; gap: 2px; }
